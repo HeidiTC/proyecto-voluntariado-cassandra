@@ -1,0 +1,44 @@
+services:
+  cassandra-node1:
+    image: cassandra:4.1
+    container_name: voluntariado-cassandra-node1
+    ports:
+      - "9042:9042"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=VoluntariadoClusterHA
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_SEEDS=voluntariado-cassandra-node1
+      - MAX_HEAP_SIZE=512M
+      - HEAP_NEWSIZE=128M
+    volumes:
+      - cassandra_node1_data:/var/lib/cassandra
+    networks:
+      - voluntariado_net
+
+  cassandra-node2:
+    image: cassandra:4.1
+    container_name: voluntariado-cassandra-node2
+    depends_on:
+      - cassandra-node1
+    environment:
+      - CASSANDRA_CLUSTER_NAME=VoluntariadoClusterHA
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_SEEDS=voluntariado-cassandra-node1
+      - MAX_HEAP_SIZE=512M
+      - HEAP_NEWSIZE=128M
+    volumes:
+      - cassandra_node2_data:/var/lib/cassandra
+    networks:
+      - voluntariado_net
+
+volumes:
+  cassandra_node1_data:
+  cassandra_node2_data:
+
+networks:
+  voluntariado_net:
+    driver: bridge
